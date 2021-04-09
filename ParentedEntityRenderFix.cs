@@ -209,7 +209,7 @@ namespace Oxide.Plugins
 
         #endregion
 
-        #region Entity Subscriber Manager
+        #region Entity Subscription Manager
 
         private class EntitySubscriptionManager
         {
