@@ -11,7 +11,7 @@ Here are some example plugins that parent electrical entities that have this pro
 - Bomb Trucks (RF receivers)
 - Turrets Extended (switches)
 
-Note: This plugin does not completely solve the problem for entities that move. However, players will be able to see them again by disconnecting and reconnecting, or by leaving the area and returning.
+Note: This plugin does not completely solve the problem for entities that move. However, players will be able to see them again by disconnecting and reconnecting, or by leaving the area and returning (until those entities move again).
 
 ## Performance warning
 
