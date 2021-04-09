@@ -59,7 +59,7 @@ namespace Oxide.Plugins
     {
         #region Fields
 
-        private static Configuration _pluginConfig;
+        private Configuration _pluginConfig;
 
         #endregion
 
