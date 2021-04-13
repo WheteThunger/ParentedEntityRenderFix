@@ -65,6 +65,12 @@ namespace Oxide.Plugins
 
         #region Hooks
 
+        private void Unload()
+        {
+            EntitySubscriptionManager.Instance.Clear();
+            NetworkCacheManager.Instance.Clear();
+        }
+
         private void OnPlayerDisconnected(BasePlayer player)
         {
             if (player.IsNpc || !player.userID.IsSteamId())
@@ -131,7 +137,12 @@ namespace Oxide.Plugins
 
         private abstract class BaseNetworkCacheManager
         {
-            private readonly Dictionary<uint, Stream> _networkCache = new Dictionary<uint, Stream>();
+            private readonly Dictionary<uint, MemoryStream> _networkCache = new Dictionary<uint, MemoryStream>();
+
+            public void Clear()
+            {
+                _networkCache.Clear();
+            }
 
             public void InvalidateForEntity(uint entityId)
             {
@@ -153,7 +164,7 @@ namespace Oxide.Plugins
                     };
                     Net.sv.write.PacketID(Message.Type.Entities);
                     Net.sv.write.UInt32(connection.validate.entityUpdates);
-                    ToStream(entity, Net.sv.write, saveInfo);
+                    ToStreamForNetwork(entity, Net.sv.write, saveInfo);
                     Net.sv.write.Send(new SendInfo(connection));
                 }
             }
@@ -172,20 +183,20 @@ namespace Oxide.Plugins
             }
 
             // Mostly copied from `BaseNetworkable.ToStreamForNetwork(Stream, SaveInfo)`.
-            private Stream ToStreamForNetwork(BaseEntity entity, BaseNetworkable.SaveInfo saveInfo)
+            private Stream ToStreamForNetwork(BaseEntity entity, Stream stream, BaseNetworkable.SaveInfo saveInfo)
             {
-                // Check entity network cache. If empty, we assume our cache is dirty too.
-                Stream cachedStream;
-                if (_networkCache.TryGetValue(entity.net.ID, out cachedStream))
-                    return cachedStream;
+                MemoryStream cachedStream;
+                if (!_networkCache.TryGetValue(entity.net.ID, out cachedStream))
+                {
+                    cachedStream = BaseNetworkable.EntityMemoryStreamPool.Count > 0
+                        ? BaseNetworkable.EntityMemoryStreamPool.Dequeue()
+                        : new MemoryStream(8);
 
-                cachedStream = BaseNetworkable.EntityMemoryStreamPool.Count > 0
-                    ? BaseNetworkable.EntityMemoryStreamPool.Dequeue()
-                    : new MemoryStream(8);
+                    ToStream(entity, cachedStream, saveInfo);
+                    _networkCache[entity.net.ID] = cachedStream;
+                }
 
-                ToStream(entity, cachedStream, saveInfo);
-                _networkCache[entity.net.ID] = cachedStream;
-
+                cachedStream.WriteTo(stream);
                 return cachedStream;
             }
 
@@ -217,6 +228,11 @@ namespace Oxide.Plugins
             public static EntitySubscriptionManager Instance => _instance;
 
             private readonly Dictionary<uint, HashSet<ulong>> _entitySubscibers = new Dictionary<uint, HashSet<ulong>>();
+
+            public void Clear()
+            {
+                _entitySubscibers.Clear();
+            }
 
             public bool AddEntitySubscription(uint entityId, ulong userId)
             {
