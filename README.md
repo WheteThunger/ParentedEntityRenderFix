@@ -37,7 +37,7 @@ You may test out the performance cost of this plugin, while monitoring your serv
 1. Add the plugin to the `oxide/plugins` directory of your Rust server installation
 2. Update the plugin configuration to include the short prefab names of entities that are affected on your server (depends on which plugins you have installed)
 3. Reload the plugin
-4. If you already have parented entities in your vicitinity that are invisible, you will have to leave the area and return for them to reappear for your client.
+4. If you already have parented entities in your vicinity that are invisible, you will have to leave the area and return for them to reappear for your client.
 
 ## Configuration
 
