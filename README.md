@@ -1,22 +1,20 @@
 ## How it works
 
-This plugin attempts to work around a client bug where certain entities appear invisible when parented. For example, if you use the Modular Car Turrets plugin, which attaches an electric switch to an auto turret, you may notice that the switch is sometimes invisible, even though the player can still see interaction prompts like "turn on" when they are looking at the switch.
+This plugin attempts to work around a client issue where certain entities appear invisible when parented. For example, if you use the Modular Car Turrets plugin, which attaches an electric switch to an auto turret, you may notice that the switch is sometimes invisible, even though the player can still see interaction prompts like "turn on" when they are looking at the switch.
 
 This plugin aims to fix this across the board, without requiring any changes to affected plugins.
 
-### How the bug works
+### How the issue works
 
 **Background:** Since some entities don't need to be rendered very far away, the game developers implemented logic to cull certain entities to save on rendering performance. The game client does this by measuring the distance between the player and the entity, and hiding the entity if it's beyond the max render distance, which depends on the type of entity. However, since most cullable entities are not expected to move in the vanilla game, the client evidently doesn't take into account the entity's current position. Instead, only the entity's original position is used for the distance measurement. By "original", I mean the position that the client received when it first became aware of the entity. Because it's client dependent, it's possible that for two different clients in the same position, one client will cull the entity, and the other may not, particularly if the entity moved.
 
-**Bug:** When the game client becomes aware of an entity that is parented, instead of saving the entity's world position for the purpose of render culling, the client instead saves the entity's local position (position relative to the entity's parent). The local position coordinates are usually low since the entity is typically intended to be visually attached to its parent. This results in the entity only rendering if the client is near the center of the map (which is where position coordinates are lowest).
+**Issue:** When the game client becomes aware of an entity that is parented, instead of saving the entity's world position for the purpose of render culling, the client instead saves the entity's local position (position relative to the entity's parent). The local position coordinates are usually low since the entity is typically intended to be visually attached to its parent. This results in the entity only rendering if the client is near the center of the map (which is where position coordinates are lowest).
 
-**Workaround:** This plugin attempts to work around the bug by detecting when an entity is being sent to a client for the first time, and then sending an additional snapshot beforehand. The additional snapshot is modified, indicating to the client that the entity is not actually parented, and that it is at the desired world position. This causes the client to save the correct world position as the entity's rendering origin. The default snapshot is then sent, which makes the client aware that the entity is actually parented, resuming normal function.
+**Workaround:** This plugin attempts to work around the issue by detecting when an entity is being sent to a client for the first time, and then sending an additional snapshot beforehand. The additional snapshot is modified, indicating to the client that the entity is not actually parented, and that it is at the desired world position. This causes the client to save the correct world position as the entity's rendering origin. The default snapshot is then sent, which makes the client aware that the entity is actually parented, resuming normal function.
 
-**Facepunch, if you are reading this:** Please fix this bug, so that this workaround will no longer be necessary. It should be pretty simple to fix. I spent an unreasonable amount of time fixing this bug for the community, and it isn't even viable for all servers due to the performance cost.
+### Example entities affected by this issue
 
-### Example entities affected by this bug
-
-There are potentially many entities affected by this bug, so these are just examples.
+There are potentially many entities affected by this issue, so these are just examples.
 
 - Electric switches
 - RF receivers
@@ -75,4 +73,4 @@ It is also possible to periodically send messages to clients to terminate and re
 
 You can instruct your users to install this plugin, and to configure it to be aware of the entity types that your plugin parents. Be sure to verify that those entity types are affected first. In the future, this plugin may have an API that allows your plugin to register those entity types automatically, to save your users from having to configure them.
 
-Since this plugin has a significant performance cost, it is not appropriate for all servers, so you should also try to reduce the impact of the parenting bug in your plugins. A lightweight way to do so is to spawn the entity unparented at the desired world position, and then parent it after. This will render the entity accurately for clients who observed the entity spawning. However, if one of those clients leaves the area (or server) and returns, the entity will likely be invisible, since that technically destroys and recreates the entity client-side, which flushes the client's cache of the entity's rendering origin.
+Since this plugin has a significant performance cost, it is not appropriate for all servers, so you should also try to reduce the impact of the parenting issue in your plugins. A lightweight way to do so is to spawn the entity unparented at the desired world position, and then parent it after. This will render the entity accurately for clients who observed the entity spawning. However, if one of those clients leaves the area (or server) and returns, the entity will likely be invisible, since that technically destroys and recreates the entity client-side, which flushes the client's cache of the entity's rendering origin.
