@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.1")]
+    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.2")]
     [Description("Fixes bug where some parented entities do not render except near map origin.")]
     /**
      * ## Background
@@ -137,14 +137,14 @@ namespace Oxide.Plugins
 
         private abstract class BaseNetworkCacheManager
         {
-            private readonly Dictionary<uint, MemoryStream> _networkCache = new Dictionary<uint, MemoryStream>();
+            private readonly Dictionary<NetworkableId, MemoryStream> _networkCache = new Dictionary<NetworkableId, MemoryStream>();
 
             public void Clear()
             {
                 _networkCache.Clear();
             }
 
-            public void InvalidateForEntity(uint entityId)
+            public void InvalidateForEntity(NetworkableId entityId)
             {
                 _networkCache.Remove(entityId);
             }
@@ -225,14 +225,14 @@ namespace Oxide.Plugins
             private static EntitySubscriptionManager _instance = new EntitySubscriptionManager();
             public static EntitySubscriptionManager Instance => _instance;
 
-            private readonly Dictionary<uint, HashSet<ulong>> _entitySubscibers = new Dictionary<uint, HashSet<ulong>>();
+            private readonly Dictionary<NetworkableId, HashSet<ulong>> _entitySubscibers = new Dictionary<NetworkableId, HashSet<ulong>>();
 
             public void Clear()
             {
                 _entitySubscibers.Clear();
             }
 
-            public bool AddEntitySubscription(uint entityId, ulong userId)
+            public bool AddEntitySubscription(NetworkableId entityId, ulong userId)
             {
                 HashSet<ulong> subscribers;
                 if (_entitySubscibers.TryGetValue(entityId, out subscribers))
@@ -242,7 +242,7 @@ namespace Oxide.Plugins
                 return true;
             }
 
-            public void RemoveEntitySubscription(uint entityId, ulong userId)
+            public void RemoveEntitySubscription(NetworkableId entityId, ulong userId)
             {
                 HashSet<ulong> subscribers;
                 if (_entitySubscibers.TryGetValue(entityId, out subscribers))
@@ -255,7 +255,7 @@ namespace Oxide.Plugins
                     entry.Value.Remove(userId);
             }
 
-            public void RemoveEntity(uint entityId)
+            public void RemoveEntity(NetworkableId entityId)
             {
                 _entitySubscibers.Remove(entityId);
             }
