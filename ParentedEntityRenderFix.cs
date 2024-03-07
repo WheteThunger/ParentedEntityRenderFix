@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.2")]
+    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.3")]
     [Description("Fixes bug where some parented entities do not render except near map origin.")]
     /**
      * ## Background
@@ -154,14 +154,13 @@ namespace Oxide.Plugins
             // - `BasePlayer.SendEntitySnapshot(BaseNetworkable)`
             public void SendModifiedSnapshot(BaseEntity entity, Connection connection)
             {
-                var write = Net.sv.StartWrite();
+                var write = Net.sv.StartWrite(Message.Type.Entities);
                 connection.validate.entityUpdates++;
                 var saveInfo = new BaseNetworkable.SaveInfo()
                 {
                     forConnection = connection,
                     forDisk = false
                 };
-                write.PacketID(Message.Type.Entities);
                 write.UInt32(connection.validate.entityUpdates);
                 ToStreamForNetwork(entity, write, saveInfo);
                 write.Send(new SendInfo(connection));
