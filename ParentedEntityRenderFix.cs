@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.2")]
+    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.3")]
     [Description("Fixes bug where some parented entities do not render except near map origin.")]
     /**
      * ## Background
@@ -175,7 +175,7 @@ namespace Oxide.Plugins
                     entity.Save(saveInfo);
                     Interface.CallHook("OnEntitySaved", entity, saveInfo);
                     HandleOnEntitySaved(entity, saveInfo);
-                    saveInfo.msg.ToProto(stream);
+                    saveInfo.msg.WriteToStream(stream);
                     entity.PostSave(saveInfo);
                 }
             }
