@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Oxide.Plugins
 {
-    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.3")]
+    [Info("Parented Entity Render Fix", "WhiteThunder", "0.1.4")]
     [Description("Fixes bug where some parented entities do not render except near map origin.")]
     /**
      * ## Background
@@ -115,6 +115,9 @@ namespace Oxide.Plugins
         private void OnNetworkGroupLeft(BasePlayer player, Network.Visibility.Group group)
         {
             if (player.IsNpc || !player.userID.IsSteamId())
+                return;
+
+            if (group.networkables == null)
                 return;
 
             for (var i = 0; i < group.networkables.Count; i++)
